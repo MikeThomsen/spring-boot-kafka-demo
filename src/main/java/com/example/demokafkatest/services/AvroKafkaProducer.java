@@ -1,5 +1,6 @@
 package com.example.demokafkatest.services;
 
+import com.example.demokafkatest.Organization;
 import com.example.demokafkatest.Person;
 import org.apache.avro.io.Encoder;
 import org.apache.avro.io.EncoderFactory;
@@ -24,17 +25,18 @@ public class AvroKafkaProducer {
     @Value("${demo.topic.avro_test}")
     private String topic;
 
-    public void produce(Person person) {
+    public void produce(Object object) {
         try {
-            ReflectDatumWriter writer = new ReflectDatumWriter(Person.class);
+            Class clz = object instanceof Person ? Person.class : Organization.class;
+            ReflectDatumWriter writer = new ReflectDatumWriter(clz);
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             Encoder encoder = EncoderFactory.get().binaryEncoder(out, null);
-            writer.write(person, encoder);
+            writer.write(object, encoder);
             encoder.flush();
             out.close();
-            String key = String.format("person.%s", UUID.randomUUID());
+            String key = String.format("%s.%s", clz.getSimpleName().toLowerCase(), UUID.randomUUID());
             kafkaTemplate.send(topic, key, out.toByteArray());
-            LOGGER.debug(String.format("Sent %s with key %s to avro-messages", person, key));
+            LOGGER.debug(String.format("Sent %s with key %s to avro-messages", object, key));
         } catch (Exception ex) {
             ex.printStackTrace();
         }

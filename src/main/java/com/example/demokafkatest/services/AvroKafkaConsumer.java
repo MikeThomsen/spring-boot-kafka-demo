@@ -1,5 +1,6 @@
 package com.example.demokafkatest.services;
 
+import com.example.demokafkatest.Organization;
 import com.example.demokafkatest.Person;
 import org.apache.avro.io.Decoder;
 import org.apache.avro.io.DecoderFactory;
@@ -11,13 +12,19 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class AvroKafkaConsumer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AvroKafkaConsumer.class);
 
-    private Person received;
+    private List<Object> received;
+
+    public AvroKafkaConsumer() {
+        received = new ArrayList<>();
+    }
 
     @KafkaListener(topics = "${demo.topic.avro_test}", groupId = "avroConsumerGroup")
     public void receive(ConsumerRecord<String, byte[]> consumerRecord) {
@@ -25,19 +32,19 @@ public class AvroKafkaConsumer {
             String key = consumerRecord.key();
             byte[] payload = consumerRecord.value();
             LOGGER.info(String.format("Got back key %s with payload of %d bytes", key, (payload != null ? payload.length : -1)));
-            ReflectDatumReader reader = new ReflectDatumReader(Person.class);
+            Class clz = key.startsWith("person") ? Person.class : Organization.class;
+            ReflectDatumReader reader = new ReflectDatumReader(clz);
             Decoder decoder = DecoderFactory.get().binaryDecoder(new ByteArrayInputStream(payload), null);
-            Person readBack = (Person) reader.read(null, decoder);
 
-            LOGGER.info("Got back: " + readBack);
+            received.add(reader.read(null, decoder));
 
-            received = readBack;
+            LOGGER.info("Got back: " + received.get(received.size() - 1));
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
-    public Person getPayload() {
+    public List<Object> getPayload() {
         return received;
     }
 }
