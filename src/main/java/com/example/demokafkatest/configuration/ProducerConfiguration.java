@@ -1,3 +1,8 @@
+/*
+ * Derived from code found in this blog post:
+ * https://medium.com/@mailshine/apache-avro-quick-example-in-kafka-7b2909396c02
+ */
+
 package com.example.demokafkatest.configuration;
 
 import org.apache.kafka.clients.producer.ProducerConfig;
