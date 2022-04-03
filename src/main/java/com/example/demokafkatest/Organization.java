@@ -1,5 +1,7 @@
 package com.example.demokafkatest;
 
+import java.util.Objects;
+
 public class Organization {
     private String name;
     private String organizationType;
@@ -25,6 +27,19 @@ public class Organization {
 
     public void setOrganizationType(String organizationType) {
         this.organizationType = organizationType;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Organization that = (Organization) o;
+        return Objects.equals(name, that.name) && Objects.equals(organizationType, that.organizationType);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, organizationType);
     }
 
     @Override

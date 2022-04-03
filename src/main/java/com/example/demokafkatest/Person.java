@@ -1,5 +1,7 @@
 package com.example.demokafkatest;
 
+import java.util.Objects;
+
 public class Person {
     String firstName;
     String lastName;
@@ -35,6 +37,19 @@ public class Person {
 
     public void setAge(Integer age) {
         this.age = age;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Person person = (Person) o;
+        return Objects.equals(firstName, person.firstName) && Objects.equals(lastName, person.lastName) && Objects.equals(age, person.age);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(firstName, lastName, age);
     }
 
     @Override
