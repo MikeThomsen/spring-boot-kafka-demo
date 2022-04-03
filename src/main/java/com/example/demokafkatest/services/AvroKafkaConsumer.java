@@ -8,25 +8,36 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
 
+@Component
 public class AvroKafkaConsumer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AvroKafkaConsumer.class);
 
-    @KafkaListener(topics = "${demo.topic.string_test}", groupId = "stringConsumerGroup")
+    private Person received;
+
+    @KafkaListener(topics = "${demo.topic.avro_test}", groupId = "avroConsumerGroup")
     public void receive(ConsumerRecord<String, byte[]> consumerRecord) {
         try {
             String key = consumerRecord.key();
             byte[] payload = consumerRecord.value();
+            LOGGER.info(String.format("Got back key %s with payload of %d bytes", key, (payload != null ? payload.length : -1)));
             ReflectDatumReader reader = new ReflectDatumReader(Person.class);
             Decoder decoder = DecoderFactory.get().binaryDecoder(new ByteArrayInputStream(payload), null);
             Person readBack = (Person) reader.read(null, decoder);
 
             LOGGER.info("Got back: " + readBack);
+
+            received = readBack;
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+    }
+
+    public Person getPayload() {
+        return received;
     }
 }

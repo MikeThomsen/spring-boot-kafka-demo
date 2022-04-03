@@ -1,6 +1,12 @@
 demo:
   topic:
     string_test: strings
+    avro_test: avro-messages
+
+kafka:
+  bootstrap:
+    address: localhost:9092
+  consumer: avroConsumerGroup
 
 logging:
   level:

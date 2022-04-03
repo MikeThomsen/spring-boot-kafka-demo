@@ -5,6 +5,8 @@ public class Person {
     String lastName;
     Integer age;
 
+    public Person() {}
+
     public Person(String firstName, String lastName, Integer age) {
         this.firstName = firstName;
         this.lastName = lastName;
